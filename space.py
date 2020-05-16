@@ -22,22 +22,17 @@ pygame.display.set_caption('My Game')
 
 ship = Ship("img/testIMG.png" , WIDTH , HEIGHT)
 
-
-
-
 def addshoot ():
     s = Shoot ("img/shoot.png" , ship) 
     shoots.append(s)
 
-
 def creatEnemy ():
-    xpost = 25 
-    ypost = 25
+    xpost = 30
+    ypost = 30
     for y in range (5):
         for x in range (10):
             shipenemy = ShipEnemy("img/ship.bmp" , (x+1)*xpost , (y+1)*ypost)
             shipEnemy.append(shipenemy)
-
 
 creatEnemy()
 
@@ -51,7 +46,8 @@ while running:
         ship.movleft(5,WIDTH)
     if key_pressed[pygame.K_RIGHT]:
         ship.movright(5 ,WIDTH)
-
+    #if key_pressed[pygame.K_SPACE]:
+    #    addshoot()
     
 
     for event in pygame.event.get():
@@ -61,19 +57,13 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 addshoot()
-                
-
-    ''' esto es para el disparo de las naves enemigas '''
-    
-
+         
     screen.blit(ship.img,(ship.xposition,ship.yposition))
     
 
     for shipE in shipEnemy:
         shipE.nextMove(HEIGHT , WIDTH,5)
         screen.blit(shipE.img, (shipE.xposition,shipE.yposition))
-
-
 
     for shoot in shoots :
         shoot.movup(5)        
@@ -87,8 +77,6 @@ while running:
         if enemyshoot.yposition > HEIGHT -10:
             enemyshoots.remove(enemyshoot)
 
-              
-    
     pygame.display.update() 
     pygame.time.delay (20)
 

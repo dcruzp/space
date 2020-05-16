@@ -1,52 +1,81 @@
 import pygame 
 from pygame.locals import * 
-import time
-
-from time import gmtime 
-
-RED = (255, 0, 0)
-GRAY = (150, 150, 150)
+import objects
+import os 
+import geometry
 
 pygame.init() 
-w,h = 640, 240
-screen = pygame.display.set_mode((w,h))
-running = True 
+w,h = 800,640
 
-img = pygame.image.load('img/player1 copia.png')
-img.convert()
-rect = img.get_rect()
+pantalla = pygame.display.set_mode((w,h),0,32)
 
-rect.center = w//2, h//2
-moving = False
-
+RED = (255,0,0)
 BLUE = (0,0,255)
-
-font = pygame.font.SysFont(None,15)
-img1 = font.render('daniel',True , BLUE)
-r = img1.get_rect()
+BLACK = (0,0,0)
 
 
+ship = objects.Ship(os.path.join('sources','img','mejora de la nave.png'),w,h)
 
-t0 = time.time()
+mouse = x,y = (10,10)
+c = geometry.Circle(geometry.Point(x,y),2)
 
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            if rect.collidepoint(event.pos):
-                moving = True
-        elif event.type == pygame.MOUSEBUTTONUP:
-            moving = False
-        elif event.type == pygame.MOUSEMOTION and moving:
-            rect.move_ip(event.rel)
 
-    t0 = time.time() - t0
+# esto es para dibujar en la superficie de la nave
+#circle1  = geometry.Circle(geometry.Point(40,30),20)
+#circle2  = geometry.Circle(geometry.Point(20,60),20)
+#circle3  = geometry.Circle(geometry.Point(60,60),20)
+#pygame.draw.circle(ship.sprite.image, RED, (circle1.center.x,circle1.center.y), circle1.radius, 1)
+#pygame.draw.circle(ship.sprite.image, RED, (circle2.center.x,circle2.center.y), circle2.radius, 1)
+#pygame.draw.circle(ship.sprite.image, RED, (circle3.center.x,circle3.center.y), circle3.radius, 1)
+ship.dawCircles()
+# aqui se acaba
+
+#circles = (circle1,circle2,circle3)
+
+#def colition (circs , mous):
+#   for x in circs:
+#        if x.collider(mous):
+#            return True
+#    return False 
+
+
+reloj = pygame.time.Clock()
+while(True):
+
+    #circle1  = geometry.Circle(geometry.Point(ship.sprite.rect.left+ 40,ship.sprite.rect.top + 30),20)
+    #circle2  = geometry.Circle(geometry.Point(ship.sprite.rect.left+ 20,ship.sprite.rect.top + 60),20)
+    #circle3  = geometry.Circle(geometry.Point(ship.sprite.rect.left+ 60,ship.sprite.rect.top + 60),20)
+
+    #circles = (circle1,circle2,circle3)
+
+    for eventos in pygame.event.get():
+        if eventos.type == pygame.QUIT:
+            exit()
+    pulsada = pygame.key.get_pressed() 
+    if pulsada[pygame.K_LEFT]:
+        ship.movleft(4)
+    if pulsada[pygame.K_RIGHT]:
+        ship.movright(4,w)
+
+    mouse = pygame.mouse.get_pos()
+    c.center.x  = mouse[0]
+    c.center.y  = mouse[1]
+    c.radius = 2 
+   
     
-    img1 = font.render(str(t0),True,BLUE)
-    screen.fill(GRAY)
-    screen.blit(img, rect)
-    screen.blit(img1, (2, h - img1.get_height()))
-    pygame.display.update()
+    if ship.collider(c):
+        print('Hubo una colicion ')
 
-pygame.quit()
+
+    reloj.tick(60)
+    pantalla.fill(BLACK)
+
+    '''
+    circle  = geometry.Circle((10,10),10)
+    pygame.draw.circle(ship.sprite.image, RED, circle.center, circle.radius, 1)
+    '''
+
+    pantalla.blit(ship.sprite.image, ship.sprite.rect)
+    pygame.draw.rect(pantalla , RED , ship.sprite.rect,1)
+    pygame.draw.circle(pantalla, BLUE, (c.center.x ,c.center.y), c.radius, 1)
+    pygame.display.update()               
