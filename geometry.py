@@ -13,7 +13,7 @@ class Point:
 
 
 class Circle:
-    def __init__(self , c=(0,0) , r=0):
+    def __init__(self , c , r=0):
         self.center = c
         self.radius = r
 

@@ -6,12 +6,10 @@ class Ship:
 
     def __init__(self,img,width, height) :
         self.sprite = pygame.sprite.Sprite()
-        self.img = pygame.image.load(img).convert_alpha()  
-        self.img = pygame.transform.scale(self.img, (80,80))
-        self.sprite.image = self.img
-        self.sprite.rect = self.img.get_rect()
-        self.sprite.rect.top = height -10 - self.img.get_height()
-        self.sprite.rect.left = (width/2) - (self.img.get_width()/2)
+        self.sprite.image =  pygame.transform.scale(pygame.image.load(img).convert_alpha(),(80,80))
+        self.sprite.rect = self.sprite.image.get_rect()
+        self.sprite.rect.top = height -10 - self.sprite.image.get_height()
+        self.sprite.rect.left = (width/2) - (self.sprite.image.get_width()/2)
         self.colliderCirc = (
                                 geometry.Circle(geometry.Point(40,30),20),
                                 geometry.Circle(geometry.Point(20,60),20),
@@ -30,7 +28,8 @@ class Ship:
         for x in self.colliderCirc:
             circaux = geometry.Circle(
                                         geometry.Point( self.sprite.rect.left + x.center.x,
-                                                        self.sprite.rect.top + x.center.y),
+                                                        self.sprite.rect.top + x.center.y 
+                                                      ),
                                         x.radius
                                      )
             if circaux.collider(circle):
@@ -43,22 +42,29 @@ class Ship:
 
 class Shoot:
     def __init__ (self , img , ship):
-        self.img = pygame.image.load(img).convert_alpha() 
-        self.img = pygame.transform.scale(self.img , (5,10))
-        self.xposition = ship.xposition - self.img.get_width()/2 + ship.img.get_width() /2
-        self.yposition = ship.yposition - self.img.get_height()/2
+        self.sprite = pygame.sprite.Sprite()
+        self.sprite.image = pygame.transform.scale(pygame.image.load(img).convert_alpha(),(4,8))
+        self.sprite.rect = self.sprite.image.get_rect()
+        self.sprite.rect.top = ship.sprite.rect.top - self.sprite.image.get_height()/2
+        self.sprite.rect.left = ship.sprite.rect.left - self.sprite.image.get_width()/2 + ship.sprite.image.get_width() /2
+        self.colliderCirc = (
+                                geometry.Circle(geometry.Point(2,4),2),
+                            )
+
         self.timemove = 2
         self.timemovecurr = 0 
 
-    def movup (self, dist):
-        padding = self.img.get_height()/2
+    def movup (self, dist):      
 
         self.timemovecurr += 1 
 
-        if self.timemovecurr == self.timemove and self.yposition - padding - dist>= 0:
-            self.yposition =  self.yposition - dist  
+        if self.timemovecurr == self.timemove and self.sprite.rect.top - dist>= 0:
+            self.sprite.rect.top =  self.sprite.rect.top - dist  
             self.timemovecurr = 0             
 
+    def dawCircles (self):
+        for x in self.colliderCirc:            
+            pygame.draw.circle(self.sprite.image, (0,255,0), (x.center.x,x.center.y), x.radius, 1)
     
 
 class Direction (Enum):
@@ -72,56 +78,50 @@ class Direction (Enum):
 class ShipEnemy :
     def __init__(self, img , xposition , yposition):
         self.sprite = pygame.sprite.Sprite()
-        self.sprite.image = img
-
-
-        self.img = pygame.image.load(img).convert_alpha()
-        self.img = pygame.transform.scale (self.img , (20,20))
-        self.xposition = xposition 
-        self.yposition = yposition
-        self.direction = Direction.RIGHT 
-        
-        self.maxdistomov = 700
-        self.maxdistreco = 0  
+        self.sprite.image = pygame.transform.scale(pygame.image.load(img).convert_alpha(),(30,30))        
+        self.sprite.rect = self.sprite.image.get_rect()
+        self.sprite.rect.top = yposition 
+        self.sprite.rect.left = xposition
+        self.colliderCirc = (
+                                geometry.Circle(geometry.Point(15,15),12),
+                            )
+        self.direction = Direction.RIGHT        
 
 
     def moveRight( self, width , dist ):
-        if self.xposition  + dist  < width :
-            self.xposition += dist
+        if self.sprite.rect.left  + dist  < width :
+            self.sprite.rect.left += dist
 
     def moveLeft (self , width , dist ):
-        if self.xposition -  dist > 0 : 
-            self.xposition -= dist   
+        if self.sprite.rect.left -  dist > 0 : 
+            self.sprite.rect.left  -= dist   
 
     def moveDown(self , height , dist):
         if self.yposition + self.img.get_height()/2 + dist <= height:
             self.yposition += dist        
 
-    def nextMove (self, height , width ,dist):        
-        middlewidth = self.img.get_width()/2
+    def nextMove (self, height , width ,dist):           
 
         if self.direction == Direction.RIGHT:
-            if self.xposition + middlewidth + dist > width or self.maxdistreco > self.maxdistomov:
-                self.moveDown(height , dist  *2 )
-                self.direction = Direction.LEFT    
-                self.maxdistreco = 0                        
+            if self.sprite.rect.left + self.sprite.rect.width + dist > width:                
+                self.direction = Direction.LEFT                                       
             else:
-                self.moveRight(width , dist)
-                self.maxdistreco += dist
+                self.moveRight(width , dist)                
         
         elif self.direction == Direction.LEFT:
-            if self.xposition - middlewidth - dist < 0 or self.maxdistreco > self.maxdistomov:
-                self.moveDown(height,dist * 2)
-                self.direction = Direction.RIGHT   
-                self.maxdistreco = 0              
+            if self.sprite.rect.left - dist < 0 :                
+                self.direction = Direction.RIGHT                             
             else:
                 self.moveLeft(width,dist)
-                self.maxdistreco += dist
+                
 
     def shoot (self ):
-        shoot = shootEnemy('img/spaceshoot.png' , (self.xposition, self.yposition + self.img.get_height()))
+        shoot = shootEnemy('img/spaceshoot.png' , (self.sprite.rect.left, self.sprite.rect.top + self.sprite.image.get_height()))
         return shoot
                     
+    def dawCircles (self):
+        for x in self.colliderCirc:            
+            pygame.draw.circle(self.sprite.image, (0,255,0), (x.center.x,x.center.y), x.radius, 1)                
                                 
 class shootEnemy:
     def __init__ (self , img , position):
