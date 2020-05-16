@@ -1,6 +1,7 @@
 import pygame 
 from enum import Enum 
 import geometry
+import os
 
 class Ship:
 
@@ -10,11 +11,13 @@ class Ship:
         self.sprite.rect = self.sprite.image.get_rect()
         self.sprite.rect.top = height -10 - self.sprite.image.get_height()
         self.sprite.rect.left = (width/2) - (self.sprite.image.get_width()/2)
+        self.shoots = [] 
         self.colliderCirc = (
                                 geometry.Circle(geometry.Point(40,30),20),
                                 geometry.Circle(geometry.Point(20,60),20),
                                 geometry.Circle(geometry.Point(60,60),20)
                             )
+                            
 
     def movleft (self , dist):             
         if self.sprite.rect.left > 0 :
@@ -40,17 +43,21 @@ class Ship:
         for x in self.colliderCirc:            
             pygame.draw.circle(self.sprite.image, (255,0,0), (x.center.x,x.center.y), x.radius, 1)
 
+    def appendShoot (self):
+        shoot = Shoot(os.path.join('sources','img','shoot.png'),self.sprite.rect.left + self.sprite.rect.width/2,self.sprite.rect.top)         
+        self.shoots.append(shoot)
+
+
 class Shoot:
-    def __init__ (self , img , ship):
+    def __init__ (self , img , x , y):
         self.sprite = pygame.sprite.Sprite()
         self.sprite.image = pygame.transform.scale(pygame.image.load(img).convert_alpha(),(4,8))
         self.sprite.rect = self.sprite.image.get_rect()
-        self.sprite.rect.top = ship.sprite.rect.top - self.sprite.image.get_height()/2
-        self.sprite.rect.left = ship.sprite.rect.left - self.sprite.image.get_width()/2 + ship.sprite.image.get_width() /2
+        self.sprite.rect.top = y - self.sprite.image.get_height()/2
+        self.sprite.rect.left = x - self.sprite.image.get_width()/2 
         self.colliderCirc = (
                                 geometry.Circle(geometry.Point(2,4),2),
                             )
-
         self.timemove = 2
         self.timemovecurr = 0 
 
@@ -114,7 +121,18 @@ class ShipEnemy :
             else:
                 self.moveLeft(width,dist)
                 
-
+    def collider (self,circle):
+        for x in self.colliderCirc:
+            circaux = geometry.Circle(
+                                        geometry.Point( self.sprite.rect.left + x.center.x,
+                                                        self.sprite.rect.top + x.center.y 
+                                                      ),
+                                        x.radius
+                                     )
+            if circaux.collider(circle):
+                return True
+        return False 
+        
     def shoot (self ):
         shoot = shootEnemy('img/spaceshoot.png' , (self.sprite.rect.left, self.sprite.rect.top + self.sprite.image.get_height()))
         return shoot
