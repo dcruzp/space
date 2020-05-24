@@ -83,6 +83,7 @@ class Direction (Enum):
 
 
 class ShipEnemy :
+
     def __init__(self, img , xposition , yposition):
         self.sprite = pygame.sprite.Sprite()
         self.sprite.image = pygame.transform.scale(pygame.image.load(img).convert_alpha(),(30,30))        
@@ -94,7 +95,6 @@ class ShipEnemy :
                             )
         self.direction = Direction.RIGHT        
 
-
     def moveRight( self, width , dist ):
         if self.sprite.rect.left  + dist  < width :
             self.sprite.rect.left += dist
@@ -102,10 +102,6 @@ class ShipEnemy :
     def moveLeft (self , width , dist ):
         if self.sprite.rect.left -  dist > 0 : 
             self.sprite.rect.left  -= dist   
-
-    def moveDown(self , height , dist):
-        if self.yposition + self.img.get_height()/2 + dist <= height:
-            self.yposition += dist        
 
     def nextMove (self, height , width ,dist):           
 
@@ -132,30 +128,44 @@ class ShipEnemy :
             if circaux.collider(circle):
                 return True
         return False 
-        
-    def shoot (self ):
-        shoot = shootEnemy('img/spaceshoot.png' , (self.sprite.rect.left, self.sprite.rect.top + self.sprite.image.get_height()))
-        return shoot
-                    
+               
     def dawCircles (self):
         for x in self.colliderCirc:            
             pygame.draw.circle(self.sprite.image, (0,255,0), (x.center.x,x.center.y), x.radius, 1)                
+
+           
                                 
 class shootEnemy:
-    def __init__ (self , img , position):
-        self.img = pygame.image.load(img).convert_alpha() 
-        self.img = pygame.transform.scale (self.img , (10,10))
-        self.xposition = position [0]
-        self.yposition = position [1]
+    def __init__ (self , img , x , y):
+        self.sprite = pygame.sprite.Sprite()
+        self.sprite.image = pygame.transform.scale (pygame.image.load(img).convert_alpha()  , (6,10))
+        self.sprite.rect = self.sprite.image.get_rect()
+        self.sprite.rect.left = x - self.sprite.rect.width
+        self.sprite.rect.top = y - self.sprite.rect.height
+        self.colliderCirc = (
+                                geometry.Circle(geometry.Point(2,4),2),
+                            )
+
         self.stepmove = 0 
         self.totaltimemove = 2
 
 
     def moveDown (self , height , dist):
-        middleheight = self.img.get_height()/2
         self.stepmove = self.stepmove + 1
-        if self.yposition + middleheight + dist <= height and self.stepmove == self.totaltimemove:
+        if self.sprite.rect.top + self.sprite.rect.height  + dist <= height and self.stepmove == self.totaltimemove:
             self.stepmove = 0 
-            self.yposition += dist     
+            self.sprite.rect.top += dist     
+
+    def collider (self,circle):
+        for x in self.colliderCirc:
+            circaux = geometry.Circle(
+                                        geometry.Point( self.sprite.rect.left + x.center.x,
+                                                        self.sprite.rect.top + x.center.y 
+                                                      ),
+                                        x.radius
+                                     )
+            if circaux.collider(circle):
+                return True
+        return False          
 
   

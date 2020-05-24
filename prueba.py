@@ -14,15 +14,20 @@ RED = (255,0,0)
 GREEN =(0,255,0)
 BLUE = (0,0,255)
 BLACK = (0,0,0)
+WHITE = (255,255,255) 
 
+level = 1 
+
+
+basicFont = pygame.font.SysFont(None,28)
+text = basicFont.render('Level : ' + str (level) , True ,WHITE )
 
 ship = objects.Ship(os.path.join('sources','img','mejora de la nave.png'),w,h)
-shipenemy = objects.ShipEnemy(os.path.join('sources','img','enemyShip.png'),10,10)
+shipenemy = objects.ShipEnemy(os.path.join('sources','img','enemyShip.png'),10,40)
 
-mouse = x,y = (10,10)
-c = geometry.Circle(geometry.Point(x,y),2)
+#mouse = x,y = (10,10)
+#c = geometry.Circle(geometry.Point(x,y),2)
 
-ship.dawCircles()
 
 killenemy = False
 
@@ -44,10 +49,10 @@ while(True):
     
         
 
-    mouse = pygame.mouse.get_pos()
-    c.center.x  = mouse[0]
-    c.center.y  = mouse[1]
-    c.radius = 2 
+    #mouse = pygame.mouse.get_pos()
+    #c.center.x  = mouse[0]
+    #c.center.y  = mouse[1]
+    #c.radius = 2 
    
     
     
@@ -55,15 +60,18 @@ while(True):
     if not killenemy :
         shipenemy.nextMove(h,w,4)
 
-    if ship.collider(c):
-        print('Hubo una colicion ')
+    #if ship.collider(c):
+    #    print('Hubo una colicion ')
 
 
     reloj.tick(100)
     pantalla.fill(BLACK)
     pantalla.blit(ship.sprite.image, ship.sprite.rect)    
     pantalla.blit(shipenemy.sprite.image , shipenemy.sprite.rect)    
-    pygame.draw.circle(pantalla, BLUE, (c.center.x ,c.center.y), c.radius, 1)
+    #pygame.draw.circle(pantalla, BLUE, (c.center.x ,c.center.y), c.radius, 1)
+
+    pantalla.blit(text,(10,10))
+    # esto es para tratar los disparos de mi nave
     for x in ship.shoots:        
         x.movup(4)           
         pantalla.blit(x.sprite.image , x.sprite.rect)
@@ -73,7 +81,7 @@ while(True):
                 ship.shoots.remove(x)
                 print('le dio a la nave enemiga')
                 killenemy = True
-        if x.sprite.rect.top < 10:
+        if x.sprite.rect.top < 5:
             ship.shoots.remove(x) 
 
     pygame.display.update()               

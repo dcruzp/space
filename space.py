@@ -45,7 +45,7 @@ while running:
     if key_pressed[pygame.K_LEFT]:
         ship.movleft(5,WIDTH)
     if key_pressed[pygame.K_RIGHT]:
-        ship.movright(5 ,WIDTH)
+        ship.movright(5,WIDTH)
     #if key_pressed[pygame.K_SPACE]:
     #    addshoot()
     
@@ -70,12 +70,13 @@ while running:
         screen.blit(shoot.img , (shoot.xposition,shoot.yposition))
         if (shoot.yposition < 10 ): 
             shoots.remove(shoot)
-
+    '''
     for enemyshoot in enemyshoots:
         enemyshoot.moveDown(HEIGHT,5)
         screen.blit(enemyshoot.img , (enemyshoot.xposition , enemyshoot.yposition))
         if enemyshoot.yposition > HEIGHT -10:
             enemyshoots.remove(enemyshoot)
+    '''
 
     pygame.display.update() 
     pygame.time.delay (20)
